@@ -1,8 +1,9 @@
 /*
- Name:       deltaDisplay
+ Name:       CANdeltaDisplay
  Updated:    2017.02.25
  Author:     Christian Egger, zone11@mac.com
 */
+
 
 #include "mcp_can.h"
 #include <SPI.h>
@@ -10,7 +11,11 @@
 #include <LiquidCrystal.h>
 
 #define INT8U unsigned char
+
 const int SPI_CS_PIN = 9;
+MCP_CAN CAN(SPI_CS_PIN);  
+LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
+
 
 INT8U can_len = 0;
 INT8U can_buf[8];
@@ -24,9 +29,6 @@ int ecu_map = 0;
 
 float ecu_lambda = 0;
 float ecu_volt = 0;
-
-LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
-MCP_CAN CAN(SPI_CS_PIN);
 
 
 void setup() {
