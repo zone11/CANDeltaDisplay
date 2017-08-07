@@ -15,27 +15,26 @@ const int SPI_CS_PIN = 9;
 MCP_CAN CAN(SPI_CS_PIN);  
 LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 
-
+// CAN
 INT8U can_len = 0;
 INT8U can_buf[8];
 
+// Actual Data
 INT8U ecu_tps = 0;
 INT8U ecu_rpm = 0;
 INT8U ecu_clt = 0;
 INT8U ecu_mat = 0;
 int ecu_map = 0;
-
 float ecu_lambda = 0;
 float ecu_volt = 0;
 
-
+// Setup display and CAN shield
 void setup() {
   lcd.begin(4,20);
   lcd.setCursor(0,1);
   lcd.print("deltaDisplay CAN");
   lcd.setCursor(0,2);
   lcd.print("v0.1 2017.08.07");
-  Serial.begin(57600);
   delay(250);
   CAN.begin(CAN_500KBPS);
   delay(250);
@@ -50,7 +49,7 @@ void loop() {
   delay(100);
 }
 
-// Interrupt Display Data
+// Interrupt display data
 void updateLCD() {
   lcd.setCursor(0,0);
   lcd.print("RPM ");
@@ -92,18 +91,9 @@ void updateLCD() {
   lcd.setCursor(0,3);
   lcd.print("BAT ");
   lcd.print(ecu_volt);
-  
-  // Copy data to Serial1
-  Serial.print("U:   ");
-  Serial.println(ecu_volt);
-  Serial.print("CLT: ");
-  Serial.println(ecu_clt, DEC);
-  Serial.print("MAT: ");
-  Serial.println(ecu_mat, DEC);
-  Serial.println("---");
 }
 
-// Interrupt CAN Data Reseived
+// Interrupt CAN data received
 void MCP2515_ISR() {
   CAN.readMsgBuf(&can_len, can_buf);  
   parseData(CAN.getCanId());
@@ -130,7 +120,5 @@ void parseData(int id) {
     ecu_clt = ((int)can_buf[0]);
     ecu_mat = ((int)can_buf[3]);
     break;
-
-
   }
 }
