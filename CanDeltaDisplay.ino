@@ -1,9 +1,8 @@
 /*
- Name:       CANdeltaDisplay
- Updated:    2017.02.25
+ Name:       CANDeltaDisplay
+ Updated:    2017.08.07
  Author:     Christian Egger, zone11@mac.com
 */
-
 
 #include "mcp_can.h"
 #include <SPI.h>
@@ -20,8 +19,7 @@ LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 INT8U can_len = 0;
 INT8U can_buf[8];
 
-INT8U ecu_error = 0;
-INT8U ecu_throttle = 0;
+INT8U ecu_tps = 0;
 INT8U ecu_rpm = 0;
 INT8U ecu_clt = 0;
 INT8U ecu_mat = 0;
@@ -36,7 +34,7 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("deltaDisplay CAN");
   lcd.setCursor(0,2);
-  lcd.print("v0.1 2017.02.25");
+  lcd.print("v0.1 2017.08.07");
   Serial.begin(57600);
   delay(250);
   CAN.begin(CAN_500KBPS);
@@ -72,8 +70,8 @@ void updateLCD() {
   lcd.print(ecu_lambda);
 
   lcd.setCursor(0,1);
-  lcd.print("THR ");
-  lcd.print(ecu_throttle, DEC);
+  lcd.print("TPS ");
+  lcd.print(ecu_tps, DEC);
 
   lcd.setCursor(10,1);
   lcd.print("MAP ");
@@ -114,24 +112,25 @@ void MCP2515_ISR() {
 // Parse data from buffer
 void parseData(int id) {
   switch(id) {
-  case 0x770:
-    ecu_rpm =  ((int)(word(can_buf[0],can_buf[1])));
+  case 0x300:
+    ecu_rpm = ((int)(word(can_buf[0],can_buf[1])));
+    ecu_tps = ((int)can_buf[2]);
+    ecu_map = ((int)(word(can_buf[4],can_buf[5])));
     break;
 
-  case 0x771:
-    ecu_clt = ((int)(word(can_buf[0],can_buf[1]))/10);
-    ecu_volt = ((float)(word(can_buf[4],can_buf[5]))*5/1024);
-    ecu_throttle = ((float)(word(can_buf[6],can_buf[7]))/10);
+  case 0x305:
+    ecu_lambda = ((int)can_buf[0]);
+    break;
+    
+  case 0x308:
+    ecu_volt = ((int)(word(can_buf[0],can_buf[1])));
+    break;
+    
+  case 0x30b:
+    ecu_clt = ((int)can_buf[0]);
+    ecu_mat = ((int)can_buf[3]);
     break;
 
-  case 0x772:
-    ecu_map = ((int)(word(can_buf[0],can_buf[1])));
-    ecu_mat = ((int)(word(can_buf[2],can_buf[3]))/10);
-    ecu_lambda = (int)(word(can_buf[6],can_buf[7]));
-    break;
 
-  case 0x773:
-    ecu_error = (int)(word(can_buf[4],can_buf[5]));
-    break;    
   }
 }

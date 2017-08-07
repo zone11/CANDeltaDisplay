@@ -1,7 +1,7 @@
 CANDeltaDisplay
 ==================
 
-CAN Display for delta ECU (Specialist Components)
+CAN Display for delta ECU (Specialist Components, SCS-Delta)
 
 Using CAN Library from Seeed
 - https://github.com/Seeed-Studio/CAN_BUS_Shield
